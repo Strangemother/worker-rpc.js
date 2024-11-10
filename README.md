@@ -67,7 +67,7 @@ Import `WorkerRPC.js` in your view, and in worker file.
 </tr></thead>
 <tbody><tr valign="top"><td>
 
-Within the `my-worker-rpc.js` we can use the `importScripts`:
+Within the worker file `my-worker-rpc.js` import the `./WorkerRPC.js` file:
 
 ```js
 // Worker
@@ -76,14 +76,11 @@ importScripts(`./WorkerRPC.js`)
 
 </td><td>
 
-In the primary thread, we install the same file:
+In the primary thread, install the same file `./WorkerRPC.js`:
 
 ```jinja
 <!-- Primary thread -->
 <script src="./worker/WorkerRPC.js"></script>
-
-<!-- Our implementation -->
-<script src="./my-app.js"></script>
 ```
 
 </td></tbody></table>
@@ -123,7 +120,7 @@ const rpc = new WorkerRPC('my-worker-rpc.js')
 Setup complete! We can now apply functions in the worker, to call from your main thread.
 
 
-### Add Worker Methods
+### Add Worker Functions
 
 Add functions to your worker `rpc` object. Call those functions in the main thread.
 
@@ -155,9 +152,12 @@ Your main thread can call these functions
 const rpc = new WorkerRPC('my-worker-rpc.js')
 
 /* Use our functions */
+const callback = value => {
+    console.log('doubled:', value)
+}
 
-rpc.double(20, (r)=> console.log('double 20 ==', r))
-// double 20 == 40
+rpc.double(20, callback)
+// doubled: 40
 ```
 
 </td></tbody></table>
