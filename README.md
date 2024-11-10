@@ -115,7 +115,7 @@ Create a new instance of the `WorkerRPC` in the worker and the main thread.
 </tr></thead>
 <tbody><tr valign="top"><td>
 
-Create a new instance of the `WorkerRPC`.
+Create a new instance of the `WorkerRPC`
 
 _my-worker-rpc.js_
 ```js
@@ -125,7 +125,7 @@ const rpc = new WorkerRPC
 
 </td><td>
 
-create a new instance of the `WorkerRPC` with the worker `path`:
+Create a new instance of the `WorkerRPC` with the worker `path`
 
 _my-app.js_
 ```js
@@ -156,7 +156,7 @@ In the worker, add functions to the `rpc` object:
 
 ```js
 /* Worker */
-const rpc = new WorkerRPC()
+const rpc = new WorkerRPC
 
 rpc.double = function(value) {
     return value * 2
@@ -167,18 +167,17 @@ That's it! `double()` is ready to call.
 
 </td><td>
 
-Your main thread can call the function `rpc.double()`
+Your main thread can call the function `rpc.double(value, callback)`
 
 ```js
+/* Main Thread */
 const rpc = new WorkerRPC('my-worker-rpc.js')
 
-const callback = value => {
-    console.log('doubled:', value)
-}
-
 /* Use our functions */
-rpc.double(20, callback)
-// doubled: 40
+rpc.double(20, value => {
+    console.log('doubled:', value)
+    // doubled: 40
+})
 ```
 
 </td></tbody></table>
@@ -223,10 +222,10 @@ worker.foo('bad', callback)
 For any long-running process within your worker, we can return a `WorkerPromise`. This informs the main thread when the work is complete through a `WorkerPromise.done()` method:
 
 ```js
-// Worker; Promise Setup.
+// Worker; Quick example
 rpc.longRunning = function(data){
     const promise = rpc.promise()
-    setTimeout(() => promise.done(data), 1000)
+    setTimeout(() => promise.done(data), 3000)
     return promise;
 }
 ```
