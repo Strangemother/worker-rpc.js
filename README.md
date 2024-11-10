@@ -22,16 +22,6 @@ importScripts(`./WorkerRPC.js`)
 const rpc = new WorkerRPC()
 
 rpc.foo = (name) => `${name} eats apples`;
-
-rpc.delayedCall = function(data){
-    /* Will take 5 seconds to complete. */
-    const promise = rpc.promise()
-    setTimeout(
-        () => promise.done(data),
-        5000
-    )
-    return promise;
-}
 ```
 
 </td><td>
@@ -39,17 +29,13 @@ rpc.delayedCall = function(data){
 Call the methods it in the _primary_ thread `main-app.js`:
 
 ```js
-// Create in instance of the Worker RPC
+/* Create in instance of the Worker RPC */
 const rpc = new WorkerRPC('my-worker-rpc.js')
 
-// Call your expected functions!
+/* Call your functions */
 
 rpc.foo('the floor', console.log)
 // the floor eats apples.
-
-// Promise-like delays handled automatically.
-// 5 second delay
-rpc.delayedCall({}, console.log)
 ```
 
 </td></tbody></table>
@@ -166,12 +152,17 @@ rpc.double(20, (r)=> console.log('double 20 ==', r))
 
 ## Options
 
+
+### Callback
+
 Within the main thread, we provide a `path` and an optional `callback` for all calls:
 
 ```js
 // Main thread setup options
 var worker = new WorkerRPC(path[, callback])
 ```
+
+### Early Worker Config
 
 Within the worker, we can define the methods early; providing an object of methods for the RPC:
 
@@ -191,4 +182,37 @@ const callback = function(v){
 }
 
 worker.foo('bad', callback)
+```
+
+
+### Promise Calls
+
+Within the worker function, we can respond with a _promise_, for delayed calls:
+
+
+```js
+// In your worker file
+importScripts(`./WorkerRPC.js`)
+
+/* Create an instance of the worker rpc */
+const rpc = new WorkerRPC()
+
+rpc.foo = (name) => `${name} eats apples`;
+
+rpc.delayedCall = function(data){
+    /* Will take 5 seconds to complete. */
+    const promise = rpc.promise()
+    setTimeout(
+        () => promise.done(data),
+        5000
+    )
+    return promise;
+}
+```
+
+The main thread doesn't need to worry about promises:
+
+```js
+/*5 second delay*/
+rpc.delayedCall({}, console.log)
 ```
