@@ -3,10 +3,7 @@
 `WorkerRPC` provides a simple tool for an RPC-like interface to your own web worker.
 It's plain interface provides one file, and a utility to integrate functions.
 
-
 # Example
-
-Run it in the _primary_ thread `main-app.js`:
 
 <table>
 <thead><tr>
@@ -20,20 +17,17 @@ Put functions in your worker `my-worker-rpc.js`:
 ```js
 // In your worker file
 importScripts(`./WorkerRPC.js`)
+
 /* Create an instance of the worker rpc */
 const rpc = new WorkerRPC()
 
-
-rpc.foo = function(name){
-    return `${name} eats apples`;
-}
+rpc.foo = (name) => `${name} eats apples`;
 
 rpc.delayedCall = function(data){
     /* Will take 5 seconds to complete. */
-    let content = ['... some response ...']
     const promise = rpc.promise()
     setTimeout(
-        () => promise.done(content),
+        () => promise.done(data),
         5000
     )
     return promise;
@@ -42,6 +36,7 @@ rpc.delayedCall = function(data){
 
 </td><td>
 
+Call the methods it in the _primary_ thread `main-app.js`:
 
 ```js
 // Create in instance of the Worker RPC
@@ -53,7 +48,8 @@ rpc.foo('the floor', console.log)
 // the floor eats apples.
 
 // Promise-like delays handled automatically.
-rpc.delayedCall({}, console.log) // 5 second delay
+// 5 second delay
+rpc.delayedCall({}, console.log)
 ```
 
 </td></tbody></table>
@@ -61,7 +57,7 @@ rpc.delayedCall({}, console.log) // 5 second delay
 A `WorkerRPC` provides a quick, no-config, automated interface of functions for your [Worker](https://developer.mozilla.org/en-US/docs/Web/API/Worker). Run code within a seperate thread without the effort.
 
 
-## Setup
+# Setup
 
 Two step setup:
 
@@ -79,23 +75,24 @@ Two step setup:
 
 
 ```js
-// Load the library.
+// Worker; Import the script
 importScripts(`./WorkerRPC.js`)
 ```
 
 </td><td>
 
 ```jinja
-<!-- This library -->
+<!-- Primary thread -->
 <script src="./worker/WorkerRPC.js"></script>
+<script src="./my-app.js"></script>
 ```
 
 </td></tbody></table>
 
 
-## Usage
+# Usage
 
-Both sides need an instance of the worker:
+Both sides need an instance of the RPC object. The _main_ thread needs the `path`
 
 <table>
 <thead><tr>
@@ -104,17 +101,19 @@ Both sides need an instance of the worker:
 </tr></thead>
 <tbody><tr valign="top"><td>
 
+In the worker file `my-worker-rpc.js`, create a new instance of the `WorkerRPC`:
 ```js
-/*Worker; Create an instance of the RPC
-The worker does not need its own path.*/
+/*Worker file setup. */
 const rpc = new WorkerRPC()
 ```
 
 </td><td>
 
+In your main app `my-app.js`, create a new instance of the `WorkerRPC`,
+and provide the worker filepath:
 
 ```js
-/*Main Thread; Create in instance of the RPC
+/*Main "my-app.js".
 Provide the path to your worker file */
 const rpc = new WorkerRPC('my-worker-rpc.js')
 ```
@@ -122,10 +121,13 @@ const rpc = new WorkerRPC('my-worker-rpc.js')
 </td></tbody></table>
 
 
-### Add Methods
+Setup complete! We can now apply functions in the worker, to call from your main thread.
 
-1. Apply functions to your worker `rpc` object
-2. Call those functions in the view
+
+## Add Worker Methods
+
+1. Add functions to your worker `rpc` object.
+2. Call those functions in the main thread.
 
 
 <table>
@@ -135,7 +137,10 @@ const rpc = new WorkerRPC('my-worker-rpc.js')
 </tr></thead>
 <tbody><tr valign="top"><td>
 
+In the worker, simply add functions to the `rpc` object:
+
 ```js
+/* Worker */
 const rpc = new WorkerRPC()
 
 rpc.double = function(value) {
@@ -143,38 +148,51 @@ rpc.double = function(value) {
 }
 ```
 
+That's it! this is ready to call within the main thread.
+
 </td><td>
 
-
+Your main thread can call this function
 ```js
 const rpc = new WorkerRPC('my-worker-rpc.js')
+
+/* Check for all available functions. */
 console.log(rpc.methods())
 // ['double']
 
+/* Call our function. */
 rpc.double(20, (r)=> console.log('double 20 ==', r))
+// double 20 == 40
 ```
 
 </td></tbody></table>
 
 
+## Options
+
+Within the main thread, we provide a `path` and an optional `callback` for all calls:
 
 ```js
+// Main thread setup options
 var worker = new WorkerRPC(path[, callback])
 ```
 
-Within the worker, define a RPC
+Within the worker, we can define the methods early; providing an object of methods for the RPC:
 
 ```js
+// Worker setup with early config
 exports = { foo: function(v){ return `${v} apples`; } }
 var rpc = new WorkerRPC(exports)
 ```
 
-Using the worker through RPC defined calls
+
+In all cases, the main thread will have access functions in the worker
 
 ```js
-callback = function(v){
-        console.log(v) // bad apples
-    }
+// Main thread, calling the worker
+const callback = function(v){
+    console.log(v) // bad apples
+}
 
 worker.foo('bad', callback)
 ```
