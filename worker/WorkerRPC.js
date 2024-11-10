@@ -67,10 +67,10 @@ class BaseRPC {
 
         if(this.path === undefined ) {
             s = '%c worker '
-            n = [s, 'background: #EEE; color: #A72929']
+            n = [s, 'background: #111; color: #A72929']
         } else {
             s = '%c client '
-            n = [s, 'background: #EEE; color: #448AFF']
+            n = [s, 'background: #111; color: #448AFF']
         };
 
         //n = [s, 'background: #222; color: #448AFF']
@@ -104,11 +104,12 @@ class WorkerPromise {
     done(){
         /* called when the user finishes the API work. Provide
         the data to give back to the response. */
-        this.log('Done callback', arguments)
-        this._done(this.data, arguments)
+        let args = Array.from(arguments)
+        this.log('Done callback', args)
+        this._done(this.data, args)
     }
 
-    _done(data, value) {
+    _done(data, argsArray) {
         /*placeholder for override of the done handler.*/
     }
 
@@ -139,7 +140,9 @@ class ClientRPC extends PromiseRPC {
         super(path, callback)
         this._get = {}
         if( this.path !== undefined
-            && it(this.path).is('string') ) {
+            && ( this.path instanceof String
+                || typeof this.path == 'string' )
+            ) {
             this.start()
         }
     }
@@ -162,6 +165,7 @@ class ClientRPC extends PromiseRPC {
     }
 
     activeCallback(data, event) {
+
         /* Callback for the activate call from start()
         data are methods allowed through the rpc api.
         ref defines the original request to the rpc call */
@@ -222,17 +226,23 @@ class ClientRPC extends PromiseRPC {
     }
 }
 
+
 class WorkerRPC extends ClientRPC {
 
     constructor(path, callback) {
 
+        let inImportSpace = false
         if(self['importScripts'] !== undefined ){
-            self['importScripts']('/javascript/utils/IT.js')
+            // self['importScripts']('/javascript/utils/IT.js')
+            inImportSpace = true
         }
 
-        var it  = IT.g;
+        // var it  = IT.g;
 
-        if(arguments.length == 1 && it(path).is('object') ) {
+        if(arguments.length == 1 &&
+                ( path instanceof Object
+                    || typeof path == 'object' )
+            ) {
             this.proxy = this.rpcProxy(path);
             return this.proxy;
         };
@@ -242,7 +252,7 @@ class WorkerRPC extends ClientRPC {
         this._ready = false;
 
         this.proxy = undefined
-
+        this.inImportSpace = inImportSpace
         if( this.path === undefined
             && callback === undefined ) {
             this.proxy = this.rpcProxy()
@@ -293,7 +303,18 @@ class WorkerRPC extends ClientRPC {
             if(e.data.name == 'reply') {
                 // data is nested in the reply function.
                 try {
+                    /* ISSUE:
+                    The decision to use call rather than apply here
+                    may serve to limit the API.
+
+                    But at the moment, the API cannot natually pass non
+                    array arguments
+
+                        // worker
+                        rpc.respond((a) => "this test response will break for apply." )
+                    */
                     cb.call(this, e.data.content.content, e)
+                    // cb.apply(this, e.data.content.content.concat(e))
                 } catch(error){
                     cb(this, e.data.content.content, e)
                 }
@@ -334,7 +355,8 @@ class WorkerRPC extends ClientRPC {
         post back the available methods */
         this.log('ACTIVATE')
         var methods = this.methods()
-        return methods
+        // return [methods] // for apply
+        return methods  // for call
     }
 
 
@@ -421,7 +443,7 @@ class WorkerRPC extends ClientRPC {
     }
 
     reply(data, v) {
-        /* send data back to the callier (worker to client)
+        /* send data back to the caller (worker to client)
         after a method has been called from the RPC API.
         data is the original call complete with function name
         and ID created. V or value is the return from the function

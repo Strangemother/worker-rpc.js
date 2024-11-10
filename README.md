@@ -1,17 +1,170 @@
 # worker-rpc.js
 
-Web Workers explicity run code within a seperate thread. You create a new webworker with a string path denoting file run path. You communicate to a web worker through a standard messaging pip.
+`WorkerRPC` provides a simple tool for an RPC-like interface to your own web worker.
+It's plain interface provides one file, and a method to integrate functions.
 
-Using a Web Worker is simple and you can find some greate examples online for usage. The supplied code provides an RPC like tool for comminicating with a web worker.
+Put functions in your worker `my-worker-rpc.js`:
 
-### RPC style
 
-+ A RPC should be easy to setup each side
-+ RPC in worker should not affect standards
-+ Worker should work normally (under-the-hood) to bypass api
+Run it in the _primary_ thread `main-app.js`:
 
-It's named a Worker RPC (rather than RPC Worker) for explicit understanding
-of the class tool. To use a script; within your app:
+
+
+<table>
+<thead><tr>
+  <th align="left">Worker Code (`my-worker-rpc.js`)</th>
+  <th align="left">Primary Thread (`main-app.js`)</th>
+</tr></thead>
+<tbody><tr valign="top"><td>
+
+
+```js
+// Load the library.
+importScripts(`./WorkerRPC.js`)
+// Create an instance of the worker rpc
+const rpc = new WorkerRPC()
+
+// Load your functions
+rpc.foo = function(name){
+    return `${name} eats apples`;
+}
+
+// Promise-like functionality for delayed called.
+rpc.delayedCall = function(data){
+    const promise = rpc.promise()
+    longProcess(promise)
+    return promise;
+}
+
+// Not an RPC Function; just some regular busy work.
+const longProcess = (promise) => {
+    /* Will take 5 seconds to complete. */
+    let content = ['... some response ...']
+    setTimeout(() => promise.done(content), 5000)
+}
+```
+
+</td><td>
+
+
+```js
+// Create in instance of the Worker RPC
+const rpc = new WorkerRPC('my-worker-rpc.js')
+
+// Call your expected functions!
+
+rpc.foo('the floor', console.log)
+// the floor eats apples.
+
+// Promise-like delays handled automatically.
+rpc.delayedCall({}, console.log) // 5 second delay
+```
+
+</td></tbody></table>
+
+A `WorkerRPC` provides a quick, no-config, automated interface of functions for your [Worker](https://developer.mozilla.org/en-US/docs/Web/API/Worker). Run code within a seperate thread without the effort.
+
+Two step setup:
+
+1. Import `WorkerRPC.js` in your view, provide it your worker-file path.
+2. Import `WorkerRPC.js` in your worker file.
+
+
+
+<table>
+<thead><tr>
+  <th align="left">Worker Code (`my-worker-rpc.js`)</th>
+  <th align="left">Primary Thread (`main-app.js`)</th>
+</tr></thead>
+<tbody><tr valign="top"><td>
+
+
+```js
+// Load the library.
+importScripts(`./WorkerRPC.js`)
+```
+
+</td><td>
+
+```jinja
+<!-- This library -->
+<script src="./worker/WorkerRPC.js"></script>
+```
+
+</td></tbody></table>
+
+
+Usage:
+
+Both sides need an instance of the worker:
+
+
+<table>
+<thead><tr>
+  <th align="left">Worker Code (`my-worker-rpc.js`)</th>
+  <th align="left">Primary Thread (`main-app.js`)</th>
+</tr></thead>
+<tbody><tr valign="top"><td>
+
+
+```js
+// Load the library.
+importScripts(`./WorkerRPC.js`)
+
+// Create an instance of the worker rpc,
+// The worker does not need its own path.
+const rpc = new WorkerRPC()
+```
+
+</td><td>
+
+
+```js
+// Create in instance of the Worker RPC
+// The primary (you view) does need the path to your worker
+const rpc = new WorkerRPC('my-worker-rpc.js')
+```
+
+</td></tbody></table>
+
+
+1. Apply functions to your worker `rpc` object
+2. Call those functions in the view
+
+
+<table>
+<thead><tr>
+  <th align="left">Worker Code (`my-worker-rpc.js`)</th>
+  <th align="left">Primary Thread (`main-app.js`)</th>
+</tr></thead>
+<tbody><tr valign="top"><td>
+
+
+```js
+// Load the library.
+importScripts(`./WorkerRPC.js`)
+
+// Create an instance of the worker rpc,
+// The worker does not need its own path.
+const rpc = new WorkerRPC()
+
+rpc.double = function(value) {
+    return value * 2
+}
+```
+
+</td><td>
+
+
+```js
+// Create in instance of the Worker RPC
+// The primary (you view) does need the path to your worker
+const rpc = new WorkerRPC('my-worker-rpc.js')
+```
+
+</td></tbody></table>
+
+
 
 ```js
 var worker = new WorkerRPC(path[, callback])
@@ -33,8 +186,3 @@ callback = function(v){
 
 worker.foo('bad', callback)
 ```
-
-args edit:
-
-    <script language="javascript" type="text/javascript" src='/javascript/worker/WorkerRPC.js'></script>
-    <script language="javascript" type="text/javascript" src='/javascript/run_rpc.js'></script>
