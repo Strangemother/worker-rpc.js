@@ -93,7 +93,7 @@ Apply the same file in the in the main thread
 _index.html_
 ```jinja
 <!-- Primary thread -->
-<script src="./worker/WorkerRPC.js"></script>
+<script src="./WorkerRPC.js"></script>
 ```
 
 </td></tbody></table>
@@ -200,21 +200,31 @@ var worker = new WorkerRPC(path[, callback])
 Within the worker, we can define the methods early; providing an object of methods for the RPC:
 
 ```js
-// Worker setup with early config
-exports = { foo: function(v){ return `${v} apples`; } }
-var rpc = new WorkerRPC(exports)
+// Worker; setup with early config
+exports = {
+    foo: (v) => `${v} World`
+}
+/* Provide an object as the first argument,
+to apply functions early */
+const rpc = new WorkerRPC(exports)
 ```
 
+This is functionally identical to:
+
+```js
+const rpc = new WorkerRPC
+rpc.foo = v => `${v} World`
+```
 
 In all cases, the main thread will have access functions in the worker
 
 ```js
-// Main thread, calling the worker
-const callback = function(v){
-    console.log(v) // bad apples
+// Main thread; calling the worker
+const callback = function(value){
+    console.log(value) // Hello World
 }
 
-worker.foo('bad', callback)
+worker.foo('Hello', callback)
 ```
 
 ### Promise Calls
@@ -233,19 +243,17 @@ rpc.longRunning = function(data){
 > [!TIP]
 > The library handles promises automatically, for implementation (on the main thread) we can pretend promises don't exist and just write handlers.
 
-#### Worker Code Implementation
+### Worker Code Implementation
 
 Within the worker function we can respond with a _promise_ for delayed calls. The `rpc.promise()` can generate a new one. Later we call `promise.done(data)` to send the result::
 
 ```js
 // Worker; Example.
 importScripts(`./WorkerRPC.js`)
-const rpc = new WorkerRPC()
+const rpc = new WorkerRPC
 
-/*
-This function return a `WorkerPromise` instance.
-Later we resolve it with the the `promise.done()` call.
- */
+/* This function return a `WorkerPromise` instance.
+Later we resolve it with the the `promise.done()` call. */
 rpc.delayedCall = function(data){
     /* Will take 5 seconds to complete. */
     const promise = rpc.promise()
@@ -261,13 +269,13 @@ rpc.delayedCall = function(data){
 This new function `delayedCall` is ready to use within the main thread.
 
 
-#### Main Thread Usage
+### Main Thread Usage
 
-Promises are handled automatically by the `rpc` object. Knowing a function exists we call it as normal. The handler is called when the promise resolves when the worker calls `promise.done(...)`:
+Promises are handled automatically by the `rpc` object. Knowing a function exists we call it as normal. The handler is called when the worker resolves with `promise.done(...)`:
 
 ```js
 /* Main Thread; Calling to (above) function */
-const rpc = new WorkerRPC()
+const rpc = new WorkerRPC('my-worker-rpc.js')
 
 rpc.delayedCall({}, console.log)
 // 5 second delay
