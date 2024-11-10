@@ -7,9 +7,7 @@ Run functions within a seperate thread without the effort.<br>
 
 </div>
 
-**TL:DR;**
-
-To install, create, and use functions:
+Install, create, and use:
 
 <table>
 <thead><tr>
@@ -34,9 +32,11 @@ const rpc = new WorkerRPC
 rpc.foo = (name) => `${name} eats apples`;
 ```
 
+It's ready to go.
+
 </td><td>
 
-Call function in your main thread
+No prep required, just call function in your main thread
 
 _main-app.js_
 
@@ -54,7 +54,12 @@ rpc.foo('the floor', console.log)
 
 </td></tbody></table>
 
-**That's it!**. There is no compilation, heavy install process, or config steps.
+**That's it!**
+
++ No compilation
++ No heavy install steps
++ No config required
+
 
 ## Setup
 
@@ -123,7 +128,7 @@ const rpc = new WorkerRPC('my-worker-rpc.js')
 Setup complete! We can now apply functions in the worker, to call from your main thread.
 
 
-### Add Worker Functions
+### Worker Functions
 
 Add functions to your worker `rpc` object. Call those functions in the main thread.
 
@@ -154,11 +159,11 @@ Your main thread can call these functions
 ```js
 const rpc = new WorkerRPC('my-worker-rpc.js')
 
-/* Use our functions */
 const callback = value => {
     console.log('doubled:', value)
 }
 
+/* Use our functions */
 rpc.double(20, callback)
 // doubled: 40
 ```
@@ -166,10 +171,10 @@ rpc.double(20, callback)
 </td></tbody></table>
 
 
-### Options
+## Options
 
 
-#### Callback
+### Callback
 
 Within the main thread, we provide a `path` and an optional `callback` for all calls:
 
@@ -178,7 +183,7 @@ Within the main thread, we provide a `path` and an optional `callback` for all c
 var worker = new WorkerRPC(path[, callback])
 ```
 
-#### Early Worker Config
+### Early Worker Config
 
 Within the worker, we can define the methods early; providing an object of methods for the RPC:
 
@@ -200,15 +205,23 @@ const callback = function(v){
 worker.foo('bad', callback)
 ```
 
-
-#### Promise Calls
+### Promise Calls
 
 For any long-running process within your worker, we can return a `WorkerPromise`. This informs the main thread when the work is complete through a `WorkerPromise.done()` method:
+
+```js
+// Worker; Promise Setup.
+rpc.longRunning = function(data){
+    const promise = rpc.promise()
+    setTimeout(() => promise.done(data), 1000)
+    return promise;
+}
+```
 
 > [!TIP]
 > The library handles promises automatically, for implementation (on the main thread) we can pretend promises don't exist and just write handlers.
 
-##### Worker Code Implementation
+#### Worker Code Implementation
 
 Within the worker function we can respond with a _promise_ for delayed calls. The `rpc.promise()` can generate a new one. Later we call `promise.done(data)` to send the result::
 
@@ -236,7 +249,7 @@ rpc.delayedCall = function(data){
 This new function `delayedCall` is ready to use within the main thread.
 
 
-##### Main Thread Call
+#### Main Thread Usage
 
 Promises are handled automatically by the `rpc` object. Knowing a function exists we call it as normal. The handler is called when the promise resolves when the worker calls `promise.done(...)`:
 
