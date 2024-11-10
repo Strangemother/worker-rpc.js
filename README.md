@@ -2,10 +2,14 @@
 
 # WorkerRPC
 
-Run code within a seperate thread without the effort.<br>
+Run functions within a seperate thread without the effort.<br>
 `WorkerRPC` provides a quick, no-config, automated interface of functions for your [Worker](https://developer.mozilla.org/en-US/docs/Web/API/Worker).
 
 </div>
+
+**TL:DR;**
+
+To install, create, and use functions:
 
 <table>
 <thead><tr>
@@ -20,10 +24,11 @@ _my-worker-rpc.js_
 
 ```js
 // Worker; my-worker-rpc.js
+
 importScripts(`./WorkerRPC.js`)
 
 /* Create an instance of the worker RPC */
-const rpc = new WorkerRPC()
+const rpc = new WorkerRPC
 
 /* Make functions */
 rpc.foo = (name) => `${name} eats apples`;
@@ -49,7 +54,7 @@ rpc.foo('the floor', console.log)
 
 </td></tbody></table>
 
-That's it!
+**That's it!**. There is no compilation, heavy install process, or config steps.
 
 ## Setup
 
@@ -195,32 +200,48 @@ worker.foo('bad', callback)
 
 #### Promise Calls
 
-Within the worker function, we can respond with a _promise_, for delayed calls:
+For any long-running process within your worker, we can return a `WorkerPromise`. This informs the main thread when the work is complete through a `WorkerPromise.done()` method:
 
+> [!TIP]
+> The library handles promises automatically, for implementation (on the main thread) we can pretend promises don't exist and just write handlers.
+
+##### Worker Code Implementation
+
+Within the worker function, we can respond with a _promise_, for delayed calls, a convenient function `rpc.promise()` generates a new one:
 
 ```js
-// In your worker file
+// Worker; Example.
 importScripts(`./WorkerRPC.js`)
-
-/* Create an instance of the worker rpc */
 const rpc = new WorkerRPC()
 
-rpc.foo = (name) => `${name} eats apples`;
-
+/*
+This function return a `WorkerPromise` instance.
+Later we resolve it with the the `promise.done()` call.
+ */
 rpc.delayedCall = function(data){
     /* Will take 5 seconds to complete. */
     const promise = rpc.promise()
+
     setTimeout(
         () => promise.done(data),
         5000
     )
+
+    /* Return the promise, to be handled quietly.*/
     return promise;
 }
 ```
 
-The main thread doesn't need to worry about promises:
+
+##### Main Thread Call
+
+The main thread doesn't need to worry about _promises_. Knowing a function exists (e.g. `delayCall`) we call it as normal, the handler (in this case `console.log`) will be called when the promise resolves:
 
 ```js
-/*5 second delay*/
+/* Main Thread; Calling to (above) function */
+const rpc = new WorkerRPC()
+
 rpc.delayedCall({}, console.log)
+// 5 second delay
+// ...
 ```
