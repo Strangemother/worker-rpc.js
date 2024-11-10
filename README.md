@@ -36,7 +36,7 @@ It's ready to go.
 
 </td><td>
 
-No prep required, just call function in your main thread
+Call worker functions
 
 _main-app.js_
 
@@ -52,6 +52,8 @@ rpc.foo('the floor', console.log)
 // the floor eats apples.
 ```
 
+Just call the functions. No prep required.
+
 </td></tbody></table>
 
 **That's it!**
@@ -63,7 +65,10 @@ rpc.foo('the floor', console.log)
 
 ## Setup
 
-Import `WorkerRPC.js` in your view, and in worker file.
+> [!TIP]
+> The library requires no additional setup. Import/install the single requirement and you're done.
+
+Import `WorkerRPC.js` in your view (main thread), and in worker file.
 
 <table>
 <thead><tr>
@@ -72,7 +77,9 @@ Import `WorkerRPC.js` in your view, and in worker file.
 </tr></thead>
 <tbody><tr valign="top"><td>
 
-Within the worker file `my-worker-rpc.js` import the `./WorkerRPC.js` file:
+import `WorkerRPC.js` within the worker file
+
+_my-worker-rpc.js_
 
 ```js
 // Worker
@@ -81,8 +88,9 @@ importScripts(`./WorkerRPC.js`)
 
 </td><td>
 
-In the primary thread, install the same file `./WorkerRPC.js`:
+Apply the same file in the in the main thread
 
+_index.html_
 ```jinja
 <!-- Primary thread -->
 <script src="./worker/WorkerRPC.js"></script>
@@ -90,11 +98,15 @@ In the primary thread, install the same file `./WorkerRPC.js`:
 
 </td></tbody></table>
 
+With the `WorkerRPC` class available in both the view and worker, we're ready to run it.
 
 ## Usage
 
-Create an instance of the `WorkerRPC` in the worker and the main thread.
-The main thread needs the `path` as the first arguments.
+Create a new instance of the `WorkerRPC` in the worker and the main thread.
+
+> [!TIP]
+> The primary thread loads the worker.
+> The main thread needs the `path` as the first arguments, the _worker_ does not need a path (because that path would be _itself_.)
 
 <table>
 <thead><tr>
