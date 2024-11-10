@@ -2,8 +2,8 @@
 
 # WorkerRPC JS
 
-`WorkerRPC` provides a no-config, automated API for your [Worker](https://developer.mozilla.org/en-US/docs/Web/API/Worker) functions.
-Run JavaScript functions within a separate thread without effort.<br>
+`WorkerRPC` provides a no-config, automated API for your [Worker](https://developer.mozilla.org/en-US/docs/Web/API/Worker) functions.<br>
+Run JavaScript functions within a separate thread without effort.
 
 </div>
 
@@ -52,7 +52,7 @@ rpc.foo('the floor', console.log)
 // the floor eats apples.
 ```
 
-Just call the functions. No prep required.
+No prep. Just call functions.
 
 </td></tbody></table>
 
