@@ -207,7 +207,7 @@ For any long-running process within your worker, we can return a `WorkerPromise`
 
 ##### Worker Code Implementation
 
-Within the worker function, we can respond with a _promise_, for delayed calls, a convenient function `rpc.promise()` generates a new one:
+Within the worker function we can respond with a _promise_ for delayed calls. The `rpc.promise()` can generate a new one. Later we call `promise.done(data)` to send the result::
 
 ```js
 // Worker; Example.
@@ -222,20 +222,20 @@ rpc.delayedCall = function(data){
     /* Will take 5 seconds to complete. */
     const promise = rpc.promise()
 
-    setTimeout(
-        () => promise.done(data),
-        5000
-    )
+    /* Long running process. */
+    setTimeout(() => promise.done(data), 5000)
 
     /* Return the promise, to be handled quietly.*/
     return promise;
 }
 ```
 
+This new function `delayedCall` is ready to use within the main thread.
+
 
 ##### Main Thread Call
 
-The main thread doesn't need to worry about _promises_. Knowing a function exists (e.g. `delayCall`) we call it as normal, the handler (in this case `console.log`) will be called when the promise resolves:
+Promises are handled automatically by the `rpc` object. Knowing a function exists we call it as normal. The handler is called when the promise resolves when the worker calls `promise.done(...)`:
 
 ```js
 /* Main Thread; Calling to (above) function */
@@ -245,3 +245,6 @@ rpc.delayedCall({}, console.log)
 // 5 second delay
 // ...
 ```
+
+Under the hood, the `rpc` object manages the promise resolution. The handler (in this case `console.log`) is held in a function cache until resolved.
+
