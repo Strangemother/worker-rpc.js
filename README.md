@@ -1,7 +1,11 @@
+<div align="center">
+
 # WorkerRPC
 
 `WorkerRPC` provides a simple tool for an RPC-like interface to your own web worker.
 It's plain interface provides one file, and a utility to integrate functions.
+
+</div>
 
 # Example
 
@@ -43,7 +47,7 @@ rpc.foo('the floor', console.log)
 A `WorkerRPC` provides a quick, no-config, automated interface of functions for your [Worker](https://developer.mozilla.org/en-US/docs/Web/API/Worker). Run code within a seperate thread without the effort.
 
 
-# Setup
+## Setup
 
 Import `WorkerRPC.js` in your view, and in worker file.
 
@@ -76,7 +80,7 @@ In the primary thread, we install the same file:
 </td></tbody></table>
 
 
-# Usage
+## Usage
 
 Both sides need an instance of the RPC object. The _main_ thread needs the `path`
 
@@ -110,7 +114,7 @@ const rpc = new WorkerRPC('my-worker-rpc.js')
 Setup complete! We can now apply functions in the worker, to call from your main thread.
 
 
-## Add Worker Methods
+### Add Worker Methods
 
 Add functions to your worker `rpc` object. Call those functions in the main thread.
 
@@ -150,10 +154,10 @@ rpc.double(20, (r)=> console.log('double 20 ==', r))
 </td></tbody></table>
 
 
-## Options
+### Options
 
 
-### Callback
+#### Callback
 
 Within the main thread, we provide a `path` and an optional `callback` for all calls:
 
@@ -162,7 +166,7 @@ Within the main thread, we provide a `path` and an optional `callback` for all c
 var worker = new WorkerRPC(path[, callback])
 ```
 
-### Early Worker Config
+#### Early Worker Config
 
 Within the worker, we can define the methods early; providing an object of methods for the RPC:
 
@@ -185,7 +189,7 @@ worker.foo('bad', callback)
 ```
 
 
-### Promise Calls
+#### Promise Calls
 
 Within the worker function, we can respond with a _promise_, for delayed calls:
 
