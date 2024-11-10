@@ -1,46 +1,42 @@
-# worker-rpc.js
+# WorkerRPC
 
 `WorkerRPC` provides a simple tool for an RPC-like interface to your own web worker.
-It's plain interface provides one file, and a method to integrate functions.
+It's plain interface provides one file, and a utility to integrate functions.
 
-Put functions in your worker `my-worker-rpc.js`:
 
+# Example
 
 Run it in the _primary_ thread `main-app.js`:
 
-
-
 <table>
 <thead><tr>
-  <th align="left">Worker Code (`my-worker-rpc.js`)</th>
-  <th align="left">Primary Thread (`main-app.js`)</th>
+  <th align="left">Worker</th>
+  <th align="left">Main Thread</th>
 </tr></thead>
 <tbody><tr valign="top"><td>
 
+Put functions in your worker `my-worker-rpc.js`:
 
 ```js
-// Load the library.
+// In your worker file
 importScripts(`./WorkerRPC.js`)
-// Create an instance of the worker rpc
+/* Create an instance of the worker rpc */
 const rpc = new WorkerRPC()
 
-// Load your functions
+
 rpc.foo = function(name){
     return `${name} eats apples`;
 }
 
-// Promise-like functionality for delayed called.
 rpc.delayedCall = function(data){
-    const promise = rpc.promise()
-    longProcess(promise)
-    return promise;
-}
-
-// Not an RPC Function; just some regular busy work.
-const longProcess = (promise) => {
     /* Will take 5 seconds to complete. */
     let content = ['... some response ...']
-    setTimeout(() => promise.done(content), 5000)
+    const promise = rpc.promise()
+    setTimeout(
+        () => promise.done(content),
+        5000
+    )
+    return promise;
 }
 ```
 
@@ -64,6 +60,9 @@ rpc.delayedCall({}, console.log) // 5 second delay
 
 A `WorkerRPC` provides a quick, no-config, automated interface of functions for your [Worker](https://developer.mozilla.org/en-US/docs/Web/API/Worker). Run code within a seperate thread without the effort.
 
+
+## Setup
+
 Two step setup:
 
 1. Import `WorkerRPC.js` in your view, provide it your worker-file path.
@@ -73,8 +72,8 @@ Two step setup:
 
 <table>
 <thead><tr>
-  <th align="left">Worker Code (`my-worker-rpc.js`)</th>
-  <th align="left">Primary Thread (`main-app.js`)</th>
+  <th align="left">Worker</th>
+  <th align="left">Main Thread</th>
 </tr></thead>
 <tbody><tr valign="top"><td>
 
@@ -94,25 +93,20 @@ importScripts(`./WorkerRPC.js`)
 </td></tbody></table>
 
 
-Usage:
+## Usage
 
 Both sides need an instance of the worker:
 
-
 <table>
 <thead><tr>
-  <th align="left">Worker Code (`my-worker-rpc.js`)</th>
-  <th align="left">Primary Thread (`main-app.js`)</th>
+  <th align="left">Worker</th>
+  <th align="left">Main Thread</th>
 </tr></thead>
 <tbody><tr valign="top"><td>
 
-
 ```js
-// Load the library.
-importScripts(`./WorkerRPC.js`)
-
-// Create an instance of the worker rpc,
-// The worker does not need its own path.
+/*Worker; Create an instance of the RPC
+The worker does not need its own path.*/
 const rpc = new WorkerRPC()
 ```
 
@@ -120,13 +114,15 @@ const rpc = new WorkerRPC()
 
 
 ```js
-// Create in instance of the Worker RPC
-// The primary (you view) does need the path to your worker
+/*Main Thread; Create in instance of the RPC
+Provide the path to your worker file */
 const rpc = new WorkerRPC('my-worker-rpc.js')
 ```
 
 </td></tbody></table>
 
+
+### Add Methods
 
 1. Apply functions to your worker `rpc` object
 2. Call those functions in the view
@@ -134,18 +130,12 @@ const rpc = new WorkerRPC('my-worker-rpc.js')
 
 <table>
 <thead><tr>
-  <th align="left">Worker Code (`my-worker-rpc.js`)</th>
-  <th align="left">Primary Thread (`main-app.js`)</th>
+  <th align="left">Worker</th>
+  <th align="left">Main Thread</th>
 </tr></thead>
 <tbody><tr valign="top"><td>
 
-
 ```js
-// Load the library.
-importScripts(`./WorkerRPC.js`)
-
-// Create an instance of the worker rpc,
-// The worker does not need its own path.
 const rpc = new WorkerRPC()
 
 rpc.double = function(value) {
@@ -157,9 +147,11 @@ rpc.double = function(value) {
 
 
 ```js
-// Create in instance of the Worker RPC
-// The primary (you view) does need the path to your worker
 const rpc = new WorkerRPC('my-worker-rpc.js')
+console.log(rpc.methods())
+// ['double']
+
+rpc.double(20, (r)=> console.log('double 20 ==', r))
 ```
 
 </td></tbody></table>
