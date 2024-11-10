@@ -88,7 +88,8 @@ In the primary thread, install the same file `./WorkerRPC.js`:
 
 ## Usage
 
-Both sides need an instance of the RPC object. The _main_ thread needs the `path`
+Create an instance of the `WorkerRPC` in the worker and the main thread.
+The main thread needs the `path` as the first arguments.
 
 <table>
 <thead><tr>
@@ -97,19 +98,21 @@ Both sides need an instance of the RPC object. The _main_ thread needs the `path
 </tr></thead>
 <tbody><tr valign="top"><td>
 
-In the worker file `my-worker-rpc.js`, create a new instance of the `WorkerRPC`:
+Create a new instance of the `WorkerRPC`.
+
+_my-worker-rpc.js_
 ```js
-/*Worker file setup. */
-const rpc = new WorkerRPC()
+/* Worker file setup. */
+const rpc = new WorkerRPC
 ```
 
 </td><td>
 
-In your main app `my-app.js`, create a new instance of the `WorkerRPC`,
-and provide the worker filepath:
+create a new instance of the `WorkerRPC` with the worker `path`:
 
+_my-app.js_
 ```js
-/*Main "my-app.js".
+/* Main "my-app.js".
 Provide the path to your worker file */
 const rpc = new WorkerRPC('my-worker-rpc.js')
 ```
