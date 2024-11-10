@@ -1,9 +1,9 @@
 <div align="center">
 
-# WorkerRPC
+# WorkerRPC JS
 
-Run functions within a seperate thread without the effort.<br>
-`WorkerRPC` provides a quick, no-config, automated interface of functions for your [Worker](https://developer.mozilla.org/en-US/docs/Web/API/Worker).
+`WorkerRPC` provides a no-config, automated API for your [Worker](https://developer.mozilla.org/en-US/docs/Web/API/Worker) functions.
+Run JavaScript functions within a separate thread without effort.<br>
 
 </div>
 
