@@ -136,11 +136,12 @@ const rpc = new WorkerRPC('my-worker-rpc.js')
 
 </td></tbody></table>
 
+Setup complete! The `WorkerRPC` unit will run the worker and setup the message pipes.
 
-Setup complete! We can now apply functions in the worker, to call from your main thread.
+Now we can apply functions in the worker, to call from your main thread.
 
 
-### Worker Functions
+## Worker Functions
 
 Add functions to your worker `rpc` object. Call those functions in the main thread.
 
@@ -162,11 +163,11 @@ rpc.double = function(value) {
 }
 ```
 
-That's it! this is ready to call within the main thread.
+That's it! `double()` is ready to call.
 
 </td><td>
 
-Your main thread can call these functions
+Your main thread can call the function `rpc.double()`
 
 ```js
 const rpc = new WorkerRPC('my-worker-rpc.js')
