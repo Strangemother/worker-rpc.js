@@ -2,12 +2,10 @@
 
 # WorkerRPC
 
-`WorkerRPC` provides a simple tool for an RPC-like interface to your own web worker.
-It's plain interface provides one file, and a utility to integrate functions.
+Run code within a seperate thread without the effort.<br>
+`WorkerRPC` provides a quick, no-config, automated interface of functions for your [Worker](https://developer.mozilla.org/en-US/docs/Web/API/Worker).
 
 </div>
-
-# Example
 
 <table>
 <thead><tr>
@@ -16,24 +14,31 @@ It's plain interface provides one file, and a utility to integrate functions.
 </tr></thead>
 <tbody><tr valign="top"><td>
 
-Put functions in your worker `my-worker-rpc.js`:
+Create worker functions
+
+_my-worker-rpc.js_
 
 ```js
-// In your worker file
+// Worker; my-worker-rpc.js
 importScripts(`./WorkerRPC.js`)
 
-/* Create an instance of the worker rpc */
+/* Create an instance of the worker RPC */
 const rpc = new WorkerRPC()
 
+/* Make functions */
 rpc.foo = (name) => `${name} eats apples`;
 ```
 
 </td><td>
 
-Call the methods it in the _primary_ thread `main-app.js`:
+Call function in your main thread
+
+_main-app.js_
 
 ```js
-/* Create in instance of the Worker RPC */
+// Main File; main-app.js
+
+/* Create in instance of the worker RPC */
 const rpc = new WorkerRPC('my-worker-rpc.js')
 
 /* Call your functions */
@@ -44,8 +49,7 @@ rpc.foo('the floor', console.log)
 
 </td></tbody></table>
 
-A `WorkerRPC` provides a quick, no-config, automated interface of functions for your [Worker](https://developer.mozilla.org/en-US/docs/Web/API/Worker). Run code within a seperate thread without the effort.
-
+That's it!
 
 ## Setup
 
